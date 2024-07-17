@@ -39,22 +39,11 @@ jobs:
         run: npm install -g @node-core/utils
 
       - name: Write Credential File
-        uses: actions/github-script@v7
+        shell: bash
         env:
           ACCESS_TOKEN: ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
-        with:
-          script: |
-            const os = require("node:os");
-            const path = require("node:path");
-            const fs = require("node:fs");
-            const username = "tsctx";
-            const token = process.env.ACCESS_TOKEN;
-            try {
-              fs.writeFileSync(path.join(os.homedir(), ".ncurc"), JSON.stringify({ "username": "tsctx", "token": token }));
-            } catch (err) {
-              console.log(err);
-              process.exit(1)
-            }
+        run: |
+          echo "{ \"username\": \"tsctx\", \"token\": \"${ACCESS_TOKEN}\" }" > ~/.ncurc
 
       - name: Update Wpt
         shell: bash
