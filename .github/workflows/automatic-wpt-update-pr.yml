@@ -1,0 +1,113 @@
+name: Automatic Create Update Wpt PR
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  create-pr:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+    
+      - name: Install Module
+        run: npm i
+
+      - name: Git Config
+        shell: bash
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions"
+
+      - name: Install Wpt Update Uitls
+        shell: bash
+        run: npm install -g @node-core/utils
+
+      - name: Write Credential File
+        uses: actions/github-script@v7
+        env:
+          ACCESS_TOKEN: ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
+        with:
+          script: |
+            const os = require("node:os");
+            const path = require("node:path");
+            const fs = require("node:fs");
+            const username = "tsctx";
+            const token = process.env.ACCESS_TOKEN;
+            try {
+              fs.writeFileSync(path.join(os.homedir(), ".ncurc"), JSON.stringify({ "username": "tsctx", "token": token }));
+            } catch (err) {
+              console.log(err);
+              process.exit(1)
+            }
+
+      - name: Update Wpt
+        shell: bash
+        id: update
+        run: |
+          npm run update:wpt
+          echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
+
+          files=(`git diff origin/${{ github.ref }} HEAD --name-only | tr '\n' ' ' `)
+          for file in ${files[@]}; do
+             echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
+             break
+          done
+
+      - name: Check if PR exists
+        id: check-pr
+        run: |
+          pr_title="chore(wpt): update wpt"
+          base_branch="${{ github.event.repository.default_branch }}"
+          echo "branch_name=$(gh pr list --state open -S ${pr_title}' in:title' -B ${base_branch} -L 1 -jq ".[] | [.headRefName]" --json headRefName | awk -F, '{print $1}' | sed -e 's/"//g')"
+
+      - name: Commit Patch
+        if: ${{ steps.update.outputs.should_update_wpt }}
+        shell: bash
+        id: commit-patch
+        run: |
+           branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
+           if ["${{ steps.check-pr.outputs.branch_name }}" == ""]; then
+              git add -u
+              git commit -m "chore(wpt): update wpt"
+              git push -f origin "HEAD:$branch"
+              echo "branch=$branch" > "$GITHUB_OUTPUT" 
+           else
+              # exists
+              echo "branch=${{ steps.check-pr.outputs.branch_name }}" > "$GITHUB_OUTPUT" 
+              git switch ${{ steps.check-pr.outputs.branch_name }}
+              git pull origin ${{ github.event.repository.default_branch }} --rebase
+              git push -f origin HEAD
+           fi
+
+      - name: Create PR
+        if: ${{ steps.update.outputs.should_update_wpt }} && ${{ steps.check-pr.outputs.branch_name }} == ""
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const should_update_wpt = ${{ steps.update.outputs.should_update_wpt }};
+            if (should_update_wpt) {
+                await github.rest.pulls.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    head: "${{ steps.commit-patch.outputs.branch }}",
+                    base: "${{ github.event.repository.default_branch }}",
+                    title: `chore(wpt): update wpt`,
+                    body: ""
+                });
+            }
