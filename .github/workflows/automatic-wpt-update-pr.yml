@@ -41,7 +41,7 @@ jobs:
         run: |
           npm install -g @node-core/utils
           ncu-config set --global username tsctx
-          ncu-config set --global token tsctx ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
+          ncu-config set --global token ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
 
       - name: Update Wpt
         shell: bash
