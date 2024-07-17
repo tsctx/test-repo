@@ -71,7 +71,7 @@ jobs:
         run: |
            branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
            if ["${{ steps.check-pr.outputs.branch_name }}" == ""]; then
-              git add -u test/fixtures/wpt/*
+              git add test/fixtures/wpt/*
               git commit -m "chore(wpt): update wpt"
               git push -f origin "HEAD:$branch"
               echo "branch=$branch" > "$GITHUB_OUTPUT" 
