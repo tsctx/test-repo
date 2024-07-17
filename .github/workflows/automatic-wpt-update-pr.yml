@@ -43,7 +43,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
         run: |
-          echo "{ \"username\": \"tsctx\", \"token\": \"${ACCESS_TOKEN}\" }" > ~/.ncurc
+          echo "{ \"username\": \"tsctx\", \"token\": \"${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}\" }" >> ~/.ncurc
 
       - name: Update Wpt
         shell: bash
