@@ -50,7 +50,7 @@ jobs:
           npm run update:wpt
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
 
-          files=(`git diff origin/${{ github.ref }} HEAD --name-only | tr '\n' ' ' `)
+          files=(`git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only | tr '\n' ' ' `)
           for file in ${files[@]}; do
              echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
              break
