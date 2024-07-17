@@ -55,7 +55,6 @@ jobs:
           npm run update:wpt          
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
 
-          git add test/fixtures/wpt/*
           files=$(git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only)
           while IFS= read -r file; do
             if [[ $file == test/fixtures/wpt/* ]]; then
