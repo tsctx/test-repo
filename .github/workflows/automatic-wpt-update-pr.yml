@@ -50,11 +50,12 @@ jobs:
           npm run update:wpt
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
 
-          files=(`git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only | tr '\n' ' ' `)
-          for file in ${files[@]}; do
-             echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
-             break
-          done
+          files=$(git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only)
+          while IFS= read -r line; do
+            if [[ $line == test/fixtures/wpt/* ]]; then
+              echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
+            fi
+          done <<< $files
 
       - name: Check if PR exists
         id: check-pr
@@ -70,7 +71,7 @@ jobs:
         run: |
            branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
            if ["${{ steps.check-pr.outputs.branch_name }}" == ""]; then
-              git add -u
+              git add -u test/fixtures/wpt/*
               git commit -m "chore(wpt): update wpt"
               git push -f origin "HEAD:$branch"
               echo "branch=$branch" > "$GITHUB_OUTPUT" 
