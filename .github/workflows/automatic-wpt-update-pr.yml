@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-    
+
       - name: Install Module
         run: npm i
 
@@ -36,26 +36,10 @@ jobs:
 
       - name: Install Wpt Update Uitls
         shell: bash
-        env:
-          ACCESS_TOKEN: ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
         run: |
           npm install -g @node-core/utils
           ncu-config set --global username tsctx
           ncu-config set --global token ${{ secrets.FOREVER_PERSONAL_GITHUB_ACCESS_TOKEN }}
-
-      - name: Update Wpt
-        shell: bash
-        id: update
-        run: |
-          npm run update:wpt
-          echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
-
-          files=$(git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only)
-          while IFS= read -r line; do
-            if [[ $line == test/fixtures/wpt/* ]]; then
-              echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
-            fi
-          done <<< $files
 
       - name: Check if PR exists
         id: check-pr
@@ -64,24 +48,34 @@ jobs:
           base_branch="${{ github.event.repository.default_branch }}"
           echo "branch_name=$(gh pr list --state open -S '${pr_title} in:title' -B ${base_branch} -L 1 --jq ".[] | [.headRefName]" --json headRefName | awk -F, '{print $1}' | sed -e 's/"//g')"
 
+      - name: Update Wpt
+        shell: bash
+        id: update
+        run: |
+          npm run update:wpt          
+          echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
+
+          git add test/fixtures/wpt/*
+          files=$(git diff origin/${{ github.event.repository.default_branch }} HEAD --name-only)
+          while IFS= read -r file; do
+            if [[ $file == test/fixtures/wpt/* ]]; then
+              echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
+            fi
+          done <<< $files
+
       - name: Commit Patch
         if: ${{ steps.update.outputs.should_update_wpt }}
         shell: bash
         id: commit-patch
         run: |
-           branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
-           if ["${{ steps.check-pr.outputs.branch_name }}" == ""]; then
-              git add test/fixtures/wpt/*
-              git commit -m "chore(wpt): update wpt"
-              git push -f origin "HEAD:$branch"
-              echo "branch=$branch" > "$GITHUB_OUTPUT" 
-           else
-              # exists
-              echo "branch=${{ steps.check-pr.outputs.branch_name }}" > "$GITHUB_OUTPUT" 
-              git switch ${{ steps.check-pr.outputs.branch_name }}
-              git pull origin ${{ github.event.repository.default_branch }} --rebase
-              git push -f origin HEAD
-           fi
+          branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
+          if ["${{ steps.check-pr.outputs.branch_name }}" != ""]; then
+            branch="${{ steps.check-pr.outputs.branch_name }}"
+          fi
+          git add test/fixtures/wpt/*
+          git commit -m "chore(wpt): update wpt"
+          git push -f origin "HEAD:$branch"
+          echo "branch=$branch" > "$GITHUB_OUTPUT"
 
       - name: Create PR
         if: ${{ steps.update.outputs.should_update_wpt }} && ${{ steps.check-pr.outputs.branch_name }} == ""
