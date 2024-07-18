@@ -55,6 +55,11 @@ jobs:
         run: |
           npm run update:wpt
 
+      - name: Git Fetch
+        shell: bash
+        run: |
+          git fetch
+
       - name: Check Update
         shell: bash
         id: check-update
