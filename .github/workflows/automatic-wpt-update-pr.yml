@@ -73,7 +73,7 @@ jobs:
           fi
           git add test/fixtures/wpt/*
           git commit -m "chore(wpt): update wpt"
-          git push -f origin "HEAD:$branch"
+          git push -f origin HEAD:$branch
           echo "branch=$branch" > "$GITHUB_OUTPUT"
 
       - name: Create PR
