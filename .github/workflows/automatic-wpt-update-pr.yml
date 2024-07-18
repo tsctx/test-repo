@@ -54,14 +54,13 @@ jobs:
         run: |
           npm run update:wpt          
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
-
-          files=$(git diff origin/${{ github.event.repository.default_branch }} --name-only)
+          # origin/${{ github.event.repository.default_branch }}
+          files=$(git diff HEAD --name-only)
           echo $files | while IFS= read -r file; do
             if [[ $file == test/fixtures/wpt/* ]]; then
               echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
             fi
-          done
-          # <<< $files
+          done <<< $files
 
       - name: Commit Patch
         if: ${{ steps.update.outputs.should_update_wpt == 'true' }}
