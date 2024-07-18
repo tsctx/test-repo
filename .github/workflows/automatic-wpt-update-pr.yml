@@ -84,12 +84,13 @@ jobs:
           echo "branch=$branch" > "$GITHUB_OUTPUT"
 
       - name: Create PR
-        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' && !steps.check-pr.outputs.branch_name }}
+        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' }}
         uses: actions/github-script@v7
         with:
           script: |
             const should_update_wpt = ${{ steps.check-update.outputs.should_update_wpt }};
-            if (should_update_wpt) {
+            const hasPR = "${{ steps.check-pr.outputs.branch_name }}";
+            if (should_update_wpt && !hasPR) {
                 await github.rest.pulls.create({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
