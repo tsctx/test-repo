@@ -26,7 +26,7 @@
     "lint:fix": "biome lint --write --unsafe ./",
     "format": "biome format ./",
     "format:fix": "biome format --write ./",
-    "update:wpt": "git-node wpt fetch"
+    "update:wpt": "git-node wpt url"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
