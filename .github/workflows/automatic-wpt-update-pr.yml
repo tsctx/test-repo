@@ -55,11 +55,6 @@ jobs:
         run: |
           npm run update:wpt
 
-      - name: Git Fetch
-        shell: bash
-        run: |
-          git fetch
-
       - name: Check Update
         shell: bash
         id: check-update
@@ -72,6 +67,7 @@ jobs:
               echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
               exit 0
             done <<< $files
+            git fetch origin ${{ steps.check-pr.outputs.branch_name }}
             files=$(git diff origin/${{ steps.check-pr.outputs.branch_name }} --name-only)
           else
             files=$(git diff HEAD --name-only)
