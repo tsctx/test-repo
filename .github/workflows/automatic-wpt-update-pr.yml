@@ -84,7 +84,7 @@ jobs:
           echo "branch=$branch" > "$GITHUB_OUTPUT"
 
       - name: Create PR
-        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' && steps.check-pr.outputs.branch_name }}
+        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' && !steps.check-pr.outputs.branch_name }}
         uses: actions/github-script@v7
         with:
           script: |
