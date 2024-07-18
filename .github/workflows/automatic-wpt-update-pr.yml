@@ -66,13 +66,12 @@ jobs:
         run: |
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
           git add test/fixtures/wpt/*
-          if ["${{ steps.check-pr.outputs.branch_name }}"]; then
+          if [-n "${{ steps.check-pr.outputs.branch_name }}"]; then
             files=$(git diff origin/${{ github.event.repository.default_branch }}...origin/${{ steps.check-pr.outputs.branch_name }}^ --name-only)
             while IFS= read -r file; do
               echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
               exit 0
             done <<< $files
-            # git fetch origin ${{ steps.check-pr.outputs.branch_name }}
             files=$(git diff origin/${{ steps.check-pr.outputs.branch_name }} --name-only)
           else
             files=$(git diff HEAD --name-only)
