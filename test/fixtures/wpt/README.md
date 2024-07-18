@@ -12,6 +12,7 @@ Last update:
 
 - fetch: https://github.com/web-platform-tests/wpt/tree/d7b09c342c/fetch
 - fetch/api: https://github.com/web-platform-tests/wpt/tree/3c4ecb50fa/fetch/api
+- url: https://github.com/web-platform-tests/wpt/tree/2b9af57f5f/url
 
 [Web Platform Tests]: https://github.com/web-platform-tests/wpt
 [`git node wpt`]: https://github.com/nodejs/node-core-utils/blob/main/docs/git-node.md#git-node-wpt
