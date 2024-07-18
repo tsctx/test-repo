@@ -48,7 +48,7 @@ jobs:
         run: |
           pr_title="chore(wpt): update wpt"
           base_branch="${{ github.event.repository.default_branch }}"
-          echo "branch_name=$(gh pr list --state open -S '${pr_title} in:title' -B ${base_branch} -L 1 --jq ".[] | [.headRefName]" --json headRefName | awk -F, '{print $1}' | sed -e 's/"//g')" > "$GITHUB_OUTPUT"
+          echo "branch_name=$(gh pr list --state open -S '${pr_title} in:title' -B ${base_branch} -L 1 --jq ".[] | [.headRefName]" --json headRefName | awk -F, '{print $1}' | jq '.[0]' | sed -e 's/"//g')" > "$GITHUB_OUTPUT"
 
       - name: Update Wpt
         shell: bash
