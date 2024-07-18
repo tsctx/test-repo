@@ -51,17 +51,16 @@ jobs:
       - name: Update Wpt
         shell: bash
         run: |
-          npm run update:wpt 
-          
-      
+          npm run update:wpt
+
       - name: Check Update
         shell: bash
         id: check-update
         run: |
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
+          git add test/fixtures/wpt/*
           # origin/${{ github.event.repository.default_branch }}
           files=$(git diff HEAD --name-only)
-          echo $files
           while IFS= read -r file; do
             if [[ $file == test/fixtures/wpt/* ]]; then
               echo "should_update_wpt=true" > "$GITHUB_OUTPUT"
