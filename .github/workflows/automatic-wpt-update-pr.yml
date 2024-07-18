@@ -34,7 +34,7 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions"
 
-      - name: Install Wpt Update Uitls
+      - name: Install Wpt Update Utils
         shell: bash
         run: |
           npm install -g @node-core/utils
@@ -50,9 +50,14 @@ jobs:
 
       - name: Update Wpt
         shell: bash
-        id: update
         run: |
-          npm run update:wpt          
+          npm run update:wpt 
+          
+      
+      - name: Check Update
+        shell: bash
+        id: check-update
+        run: |
           echo "should_update_wpt=false" > "$GITHUB_OUTPUT"
           # origin/${{ github.event.repository.default_branch }}
           files=$(git diff HEAD --name-only)
@@ -64,7 +69,7 @@ jobs:
           done <<< $files
 
       - name: Commit Patch
-        if: ${{ steps.update.outputs.should_update_wpt == 'true' }}
+        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' }}
         shell: bash
         id: commit-patch
         run: |
@@ -78,11 +83,11 @@ jobs:
           echo "branch=$branch" > "$GITHUB_OUTPUT"
 
       - name: Create PR
-        if: ${{ steps.update.outputs.should_update_wpt == 'true' && steps.check-pr.outputs.branch_name == '' }}
+        if: ${{ steps.check-update.outputs.should_update_wpt == 'true' && steps.check-pr.outputs.branch_name == '' }}
         uses: actions/github-script@v7
         with:
           script: |
-            const should_update_wpt = ${{ steps.update.outputs.should_update_wpt }};
+            const should_update_wpt = ${{ steps.check-update.outputs.should_update_wpt }};
             if (should_update_wpt) {
                 await github.rest.pulls.create({
                     owner: context.repo.owner,
