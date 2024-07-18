@@ -68,7 +68,7 @@ jobs:
         id: commit-patch
         run: |
           branch="chore/update-wpt-$(date '+%Y-%m-%d-%H')"
-          if ["${{ steps.check-pr.outputs.branch_name }}" != ""]; then
+          if ["${{ steps.check-pr.outputs.branch_name }}"]; then
             branch="${{ steps.check-pr.outputs.branch_name }}"
           fi
           git add test/fixtures/wpt/*
