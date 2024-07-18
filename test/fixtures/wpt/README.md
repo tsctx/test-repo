@@ -10,6 +10,7 @@ See [test/wpt](../../wpt/README.md) for information on how these tests are run.
 
 Last update:
 
+- fetch: https://github.com/web-platform-tests/wpt/tree/d7b09c342c/fetch
 - fetch/api: https://github.com/web-platform-tests/wpt/tree/3c4ecb50fa/fetch/api
 
 [Web Platform Tests]: https://github.com/web-platform-tests/wpt

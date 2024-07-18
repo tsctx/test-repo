@@ -1,4 +1,8 @@
 {
+  "fetch": {
+    "commit": "d7b09c342c31ef5ae7e687ef9234c6283803e87c",
+    "path": "fetch"
+  },
   "fetch/api": {
     "commit": "3c4ecb50fa0152ef247382939cc528011dfbb4b6",
     "path": "fetch/api"
