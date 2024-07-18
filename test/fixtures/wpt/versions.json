@@ -6,5 +6,9 @@
   "fetch/api": {
     "commit": "3c4ecb50fa0152ef247382939cc528011dfbb4b6",
     "path": "fetch/api"
+  },
+  "url": {
+    "commit": "2b9af57f5f61e06e93a0caff5256d2c435b5c468",
+    "path": "url"
   }
 }
